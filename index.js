@@ -6,7 +6,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/user');
 const serviceRoues = require('./routes/services');
 const contactRoutes = require('./routes/contact');
-
+const bookingRoutes = require('./routes/booking');
 
 const app = express();
 
@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', userRoutes);
 app.use('/api', serviceRoues);
 app.use('/api', contactRoutes);
+app.use('/api', bookingRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
