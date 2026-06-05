@@ -1,4 +1,5 @@
 const Booking = require('../models/Booking');
+const emailRender = require('../middleware/email');
 
 exports.createBooking = async (req, res, next) => {
   try {
@@ -32,6 +33,13 @@ exports.createBooking = async (req, res, next) => {
       agreed_to_terms,
       payment_status: 'pending',  
       booking_status: 'pending',  
+    });
+
+    await emailRender.sendContactMessagesEmails({
+        name,
+        email,
+        phone,
+        message,
     });
 
     res.status(201).json({ message: 'Booking created successfully', booking });
