@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('./config/cors');
 require('dotenv').config();
 
 const userRoutes = require('./routes/user');
@@ -8,6 +9,9 @@ const contactRoutes = require('./routes/contact');
 
 
 const app = express();
+
+app.set('trust proxy', 'loopback');
+app.use(cors);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
