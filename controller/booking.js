@@ -35,13 +35,6 @@ exports.createBooking = async (req, res, next) => {
       booking_status: 'pending',  
     });
 
-    await emailRender.sendContactMessagesEmails({
-        name,
-        email,
-        phone,
-        message,
-    });
-
     res.status(201).json({ message: 'Booking created successfully', booking });
   } catch (error) {
     next(error);

@@ -9,6 +9,14 @@ exports.addContact = async (req, res, next) => {
     }
 
     const contact = await Contact.create({ name, email, phone, message });
+
+    await emailRender.sendContactMessagesEmails({
+      name,
+      email,
+      phone,
+      message,
+    });
+    
     res.status(201).json({ message: 'Contact created successfully', contact });
   } catch (error) {
     next(error);
