@@ -8,8 +8,11 @@ const serviceRoues = require('./routes/services');
 const contactRoutes = require('./routes/contact');
 const bookingRoutes = require('./routes/booking');
 const availabilityRoutes = require('./routes/availability');
+const stripeRoutes = require('./routes/stripe');
 
 const app = express();
+
+app.use('/api/webhook', express.raw({ type: 'application/json' }), stripeRoutes);
 
 app.set('trust proxy', 'loopback');
 app.use(cors);
@@ -22,6 +25,7 @@ app.use('/api', serviceRoues);
 app.use('/api', contactRoutes);
 app.use('/api', bookingRoutes);
 app.use('/api', availabilityRoutes);
+app.use('/api', stripeRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
