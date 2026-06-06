@@ -2,6 +2,7 @@ const cors = require('cors');
 
 const allowedOrigins = [
   'http://localhost:3000',
+  "https://www.madivisuals.com",
   process.env.FRONTEND_URL,
 ].filter(Boolean); // removes undefined/null values
 
