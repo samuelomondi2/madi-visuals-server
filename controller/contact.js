@@ -1,4 +1,5 @@
 const Contact = require('../models/Contact');
+const emailRender = require('../middleware/email')
 
 exports.addContact = async (req, res, next) => {
   try {
@@ -16,7 +17,7 @@ exports.addContact = async (req, res, next) => {
       phone,
       message,
     });
-    
+
     res.status(201).json({ message: 'Contact created successfully', contact });
   } catch (error) {
     next(error);
