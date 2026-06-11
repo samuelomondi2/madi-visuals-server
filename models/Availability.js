@@ -12,6 +12,8 @@ const availabilitySchema = new mongoose.Schema({
   end_time:    { type: String, required: true }, // "17:00"
   is_available:{ type: Boolean, default: true }, // toggle day off without deleting
   slot_duration_mins: { type: Number, default: 60 }, // how long each booking slot is
+  buffer_mins:        { type: Number,  default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Availability', availabilitySchema);
+
