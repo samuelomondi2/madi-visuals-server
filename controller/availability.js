@@ -20,49 +20,96 @@ function generateSlots(start, end, durationMins) {
 }
 
 // GET /availability?date=2026-12-05
+// exports.getAvailability = async (req, res, next) => {
+//   try {
+//     const { date } = req.query;
+
+//     if (!date) {
+//       return res.status(400).json({ message: 'date query param is required' });
+//     }
+
+//     const dayOfWeek = new Date(date).getDay(); // 0 = Sunday, 6 = Saturday
+
+//     const availability = await Availability.findOne({
+//       day_of_week:  dayOfWeek,
+//       is_available: true,
+//     });
+
+//     if (!availability) {
+//       return res.status(200).json({ date, available: false, slots: [] });
+//     }
+
+//     // Get all bookings on that date
+//     const bookings = await Booking.find({
+//       booking_date:   date,
+//       booking_status: { $nin: ['cancelled'] }, // exclude cancelled bookings
+//     });
+
+//     const bookedTimes = bookings.map((b) => b.start_time);
+
+//     // Generate all slots then filter out booked ones
+//     const allSlots       = generateSlots(availability.start_time, availability.end_time, availability.slot_duration_mins);
+//     const availableSlots = allSlots.filter((slot) => !bookedTimes.includes(slot));
+
+//     res.status(200).json({
+//       date,
+//       day_of_week:   dayOfWeek,
+//       available:     true,
+//       all_slots:     allSlots,
+//       booked_slots:  bookedTimes,
+//       available_slots: availableSlots,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// controller/availability.js — getAvailability
 exports.getAvailability = async (req, res, next) => {
-  try {
-    const { date } = req.query;
-
-    if (!date) {
-      return res.status(400).json({ message: 'date query param is required' });
+    try {
+      const { date, duration } = req.query;
+  
+      if (!date) {
+        return res.status(400).json({ message: 'date query param is required' });
+      }
+  
+      const dayOfWeek = new Date(date).getDay();
+  
+      const availability = await Availability.findOne({
+        day_of_week:  dayOfWeek,
+        is_available: true,
+      });
+  
+      if (!availability) {
+        return res.status(200).json({ date, available: false, slots: [] });
+      }
+  
+      const bookings = await Booking.find({
+        booking_date:   date,
+        booking_status: { $nin: ['cancelled'] },
+      });
+  
+      const bookedTimes = bookings.map((b) => b.start_time);
+  
+      // ✅ Use duration from query if provided, otherwise fall back to schema default
+      const slotDuration = duration ? Number(duration) : availability.slot_duration_mins;
+  
+      const allSlots       = generateSlots(availability.start_time, availability.end_time, slotDuration);
+      const availableSlots = allSlots.filter((slot) => !bookedTimes.includes(slot));
+  
+      res.status(200).json({
+        date,
+        day_of_week:     dayOfWeek,
+        available:       true,
+        slot_duration:   slotDuration,
+        all_slots:       allSlots,
+        booked_slots:    bookedTimes,
+        available_slots: availableSlots,
+      });
+    } catch (error) {
+      next(error);
     }
-
-    const dayOfWeek = new Date(date).getDay(); // 0 = Sunday, 6 = Saturday
-
-    const availability = await Availability.findOne({
-      day_of_week:  dayOfWeek,
-      is_available: true,
-    });
-
-    if (!availability) {
-      return res.status(200).json({ date, available: false, slots: [] });
-    }
-
-    // Get all bookings on that date
-    const bookings = await Booking.find({
-      booking_date:   date,
-      booking_status: { $nin: ['cancelled'] }, // exclude cancelled bookings
-    });
-
-    const bookedTimes = bookings.map((b) => b.start_time);
-
-    // Generate all slots then filter out booked ones
-    const allSlots       = generateSlots(availability.start_time, availability.end_time, availability.slot_duration_mins);
-    const availableSlots = allSlots.filter((slot) => !bookedTimes.includes(slot));
-
-    res.status(200).json({
-      date,
-      day_of_week:   dayOfWeek,
-      available:     true,
-      all_slots:     allSlots,
-      booked_slots:  bookedTimes,
-      available_slots: availableSlots,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+  };
 
 exports.getAllAvailability = async (req, res, next) => {
   try {
