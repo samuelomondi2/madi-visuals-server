@@ -39,10 +39,10 @@ exports.getServiceById = async (req, res, next) => {
 
 exports.updateService = async (req, res, next) => {
     try {
-      const { name, duration, base_price, delivery, category } = req.body;
+      const { name, duration, base_price, delivery, category, is_active } = req.body;
       const service = await Service.findByIdAndUpdate(
         req.params.id,
-        { name, duration, base_price, delivery, category },
+        { name, duration, base_price, delivery, category, is_active },
         { new: true, runValidators: true }
       );
       if (!service) {
