@@ -1,5 +1,5 @@
 const cloudinary    = require('../config/cloudinary');
-const filesService  = require('../services/filesService'); // ✅ consistent name
+const filesService  = require('../services/fileService'); 
 
 exports.uploadFiles = async (req, res) => {
   try {
