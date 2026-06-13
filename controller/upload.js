@@ -1,5 +1,5 @@
-const cloudinary = require("../config/cloudinary");
-const fileService = require("../services/fileService");
+const cloudinary    = require('../config/cloudinary');
+const filesService  = require('../services/filesService'); // ✅ consistent name
 
 exports.uploadFiles = async (req, res) => {
   try {
@@ -20,8 +20,7 @@ exports.uploadFiles = async (req, res) => {
       })
     );
 
-    const results = await Promise.all(uploadPromises);
-
+    const results    = await Promise.all(uploadPromises);
     const savedFiles = await Promise.all(
       results.map((file) =>
         filesService.createFile({
@@ -45,7 +44,7 @@ exports.getFiles = async (req, res) => {
   try {
     const files = await filesService.getAllFiles();
     res.status(200).json({ success: true, data: files });
-  } catch (err) { 
+  } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to fetch files', error: err.message });
   }
@@ -63,7 +62,6 @@ exports.deleteFile = async (req, res) => {
     });
 
     await filesService.deleteFile(req.params.id);
-
     res.status(200).json({ success: true, message: 'Deleted successfully' });
   } catch (err) {
     console.error(err);
@@ -77,7 +75,6 @@ exports.getHero = async (req, res) => {
     if (!type || !['image', 'video'].includes(type)) {
       return res.status(400).json({ success: false, message: 'Valid type (image or video) is required' });
     }
-
     const hero = await filesService.getHero(type);
     res.status(200).json({ success: true, hero });
   } catch (err) {
@@ -89,18 +86,13 @@ exports.getHero = async (req, res) => {
 exports.setHero = async (req, res) => {
   try {
     const { id, type } = req.body;
-
-    if (!id) {
-      return res.status(400).json({ success: false, message: 'Media ID is required' });
-    }
+    if (!id) return res.status(400).json({ success: false, message: 'Media ID is required' });
     if (!type || !['image', 'video'].includes(type)) {
       return res.status(400).json({ success: false, message: 'Valid type (image or video) is required' });
     }
 
     const file = await filesService.getFileById(id);
-    if (!file) {
-      return res.status(404).json({ success: false, message: 'File not found' });
-    }
+    if (!file) return res.status(404).json({ success: false, message: 'File not found' });
 
     await filesService.setHero(id, type);
     res.status(200).json({ success: true, message: 'Hero updated successfully' });
