@@ -38,20 +38,25 @@ exports.getServiceById = async (req, res, next) => {
 };
 
 exports.updateService = async (req, res, next) => {
-    try {
-      const { name, duration, base_price, delivery, category, is_active } = req.body;
-      const service = await Service.findByIdAndUpdate(
-        req.params.id,
-        { name, duration, base_price, delivery, category, is_active },
-        { new: true, runValidators: true }
-      );
-      if (!service) {
-        return res.status(404).json({ message: 'Service not found' });
-      }
-      res.status(200).json({ message: 'Service updated successfully', service });
-    } catch (error) {
-      next(error);
-    }
+  try {
+    const updates = {};
+    const allowed = ['name', 'duration', 'base_price', 'delivery', 'category', 'is_active'];
+
+    allowed.forEach((key) => {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    });
+
+    const service = await Service.findByIdAndUpdate(
+      req.params.id,
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
+
+    if (!service) return res.status(404).json({ message: 'Service not found' });
+    res.status(200).json({ message: 'Service updated successfully', service });
+  } catch (error) {
+    next(error);
+  }
 };
 
 exports.deleteService = async (req, res, next) => {
