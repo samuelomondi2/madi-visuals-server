@@ -10,6 +10,7 @@ const bookingRoutes = require('./routes/booking');
 const availabilityRoutes = require('./routes/availability');
 const stripeRoutes = require('./routes/stripe');
 const uploadRoutes = require('./routes/upload');
+const heroRoutes = require('./routes/hero');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api', bookingRoutes);
 app.use('/api', availabilityRoutes);
 app.use('/api', stripeRoutes);
 app.use('/api', uploadRoutes);
+app.use('/api', heroRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
