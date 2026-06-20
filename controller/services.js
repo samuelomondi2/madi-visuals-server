@@ -16,6 +16,12 @@ exports.addService = async (req, res, next) => {
     }
 };
 
+exports.findServiceById = async (id) => {
+  const service = await Service.findById(id);
+  if (!service) throw new Error('Service not found');
+  return service;
+};
+
 exports.getAllServices = async (req, res, next) => {
     try {
       const services = await Service.find({ is_active: true });

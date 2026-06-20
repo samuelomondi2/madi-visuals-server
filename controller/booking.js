@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const emailRender = require('../middleware/email');
+const serviceController = require('./services');
 
 exports.createBooking = async (req, res, next) => {
   try {
@@ -34,6 +35,9 @@ exports.createBooking = async (req, res, next) => {
       payment_status: 'pending',  
       booking_status: 'pending',  
     });
+    
+    const service = await serviceController.findServiceById(service_id); 
+    await emailRender.sendBookingEmails({ data: booking, service }); 
 
     res.status(201).json({ message: 'Booking created successfully', booking });
   } catch (error) {
