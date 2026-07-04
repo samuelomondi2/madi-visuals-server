@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto'); 
 require('dotenv').config();
 
 exports.register = async (req, res, next) => {
@@ -73,7 +74,6 @@ exports.getUserById = async (req, res, next) => {
   }
 };
 
-// PUT /users/:id
 exports.updateUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -86,7 +86,6 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-// DELETE /users/:id
 exports.deleteUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -94,6 +93,71 @@ exports.deleteUser = async (req, res, next) => {
       return res.status(404).json({ message: 'User not found' });
     }
     res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const user = await User.findOne({ email }); 
+    if (!user) {
+      return res.status(200).json({ message: 'If email exists, reset link sent' });
+    }
+
+    const token       = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    user.resetToken       = hashedToken;
+    user.resetTokenExpire = new Date(Date.now() + 3600000); 
+    await user.save();
+
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    console.log('Reset link:', resetLink);
+
+    await emailRender.forgotPasswordTokenEmail({email, token});
+
+    res.status(200).json({ message: 'If email exists, reset link sent' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { password } = req.body;
+    const { token }    = req.query;
+
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required' });
+    }
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+  }
+
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  const user = await User.findOne({
+    resetToken:       hashedToken,
+    resetTokenExpire: { $gt: new Date() }, 
+  });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid or expired reset token' });
+  }
+
+    user.password = password; 
+    user.resetToken = undefined;
+    user.resetTokenExpire = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     next(error);
   }
