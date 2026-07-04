@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto'); 
+const emailRender = require('../middleware/email');
 require('dotenv').config();
 
 exports.register = async (req, res, next) => {

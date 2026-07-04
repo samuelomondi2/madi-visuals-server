@@ -12,7 +12,6 @@ exports.getHero = (type) =>
   Upload.findOne({ is_hero: true, media_type: type });
 
 exports.setHero = async (id, type) => {
-  // ✅ unset previous hero of same type, then set new one
   await Upload.updateMany({ media_type: type, is_hero: true }, { is_hero: false });
   await Upload.findByIdAndUpdate(id, { is_hero: true });
 };
