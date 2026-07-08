@@ -119,7 +119,7 @@ exports.forgotPassword = async (req, res, next) => {
     user.resetTokenExpire = new Date(Date.now() + 3600000); 
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/api/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     console.log('Reset link:', resetLink);
 
     await emailRender.forgotPasswordTokenEmail({email, token});
